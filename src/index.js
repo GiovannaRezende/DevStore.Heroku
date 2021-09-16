@@ -17,12 +17,38 @@ app.get('/produtos', async (req, resp) => {
 
 app.post('/produtos', async (req, resp) => {
     try {
-        let { produto, categoria, precode, precopor, avaliacao, descricao, estoque, imagem } = req.body;
 
-        let m = await db.tb_produto.findOne({ where: { nm_produto: produto,
-             ds_categoria: categoria, vl_preco_de: precode, vl_preco_por: precopor,
-              vl_avaliacao: avaliacao, ds_produto: descricao, qtd_estoque: estoque,
-               img_produto: imagem }});
+            let { produto, categoria, precode, precopor, avaliacao, descricao, estoque, imagem } = req.body;
+
+            if(estoque === NaN)
+            return resp.send({erro:'O campo estoque aceita apenas números!'}); 
+            
+            
+            if (produto === '' || produto.length < 4)
+            return resp.send({erro :'O campo produto deve ser preenchido e ter pelo menos 4 caracteres!'}); 
+            
+
+            if (categoria === '' || categoria.length < 4)
+            return resp.send({erro: 'O campo categoria é obrigatório e deve possuir mais de 4 caracteres!'});
+           
+
+            if (avaliacao === null || avaliacao <= 0)
+            return resp.send({erro: 'O campo avalição deve ser maior que 0!'}); 
+            
+
+            if (imagem === '')
+            return resp.send({erro: 'O campo imagem deve ser preenchido!'}); 
+           
+       
+            if (precode <= 0  || precopor <= 0  || estoque <= 0 )
+            return resp.send({erro: 'Os campos de preços e estoque precisam ser maiores que 0!'}); 
+            
+
+            if (descricao === '' || descricao.length < 10)
+            return resp.send({erro: 'O campo descrição deve ser preenchido e ter mais que 10 caracteres!'}); 
+            
+
+        let m = await db.tb_produto.findOne({ where: { nm_produto: produto }});
 
         if (m != null)
             return resp.send({ erro: 'Produto já existe!' });
@@ -39,7 +65,7 @@ app.post('/produtos', async (req, resp) => {
         })
         resp.send(r);
     } catch (e) {
-        resp.send({ erro: 'Ocorreu um erro!'})
+        resp.send({erro: e.toString()})
     }
 })
 
